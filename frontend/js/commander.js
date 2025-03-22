@@ -94,6 +94,44 @@ function createPlanItem(commandEl) {
     return item;
 }
 
+// Function to generate command structure from the plan
+function generateCommandStructure() {
+    const planItemsList = document.getElementById('plan-items');
+
+    // Recursive function to process command items and their nested items
+    function processItem(item) {
+        // Get the base command ID (strip off the timestamp suffix)
+        const commandId = item.dataset.id.split('-')[0];
+
+        // Check if this is a nestable item (control structure)
+        if (item.dataset.nestable === 'true') {
+            // Get all nested items
+            const nestedList = item.querySelector('.nested-list');
+            const nestedItems = nestedList ? nestedList.querySelectorAll('.command-item') : [];
+
+            // If there are nested items, create a nested structure
+            if (nestedItems.length > 0) {
+                const nestedCommands = Array.from(nestedItems).map(processItem).join(',');
+                return `${commandId}(${nestedCommands})`;
+            }
+
+            // Empty control structure
+            return `${commandId}()`;
+        }
+
+        // Regular command (non-nestable)
+        return commandId;
+    }
+
+    // Get all top-level command items in the plan
+    const topLevelItems = planItemsList.querySelectorAll(':scope > .command-item');
+
+    // Process each top-level item and join with commas
+    const commandStructure = Array.from(topLevelItems).map(processItem).join(',');
+
+    return commandStructure || "No commands in plan";
+}
+
 // Handle button clicks via event delegation
 function setupCommandEventListeners() {
     document.addEventListener('click', function(e) {
@@ -141,10 +179,17 @@ function setupCommandEventListeners() {
                 window.initializeNestedSortables(clone);
             }
         }
+
+        // Handle show command button
+        if (e.target.id === 'show-command-btn') {
+            const commandStructure = generateCommandStructure();
+            alert(`Robot Command Structure:\n${commandStructure}`);
+        }
     });
 }
 
 // Export functions for use in other modules
 window.updateEmptyPlanVisibility = updateEmptyPlanVisibility;
 window.createPlanItem = createPlanItem;
+window.generateCommandStructure = generateCommandStructure;
 window.setupCommandEventListeners = setupCommandEventListeners;
