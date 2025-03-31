@@ -89,11 +89,6 @@
     border: 2px dashed #0d6efd !important;
 }
 
-/* When dragging outside drop zones */
-.sortable-drag.sortable-fallback {
-    opacity: 0.4 !important;
-}
-
 /* Command output button */
 .command-output-btn {
     margin-top: 15px;
